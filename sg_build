@@ -1,0 +1,23 @@
+#!/bin/bash
+
+## This script is designed to minimize frustration when adding new service groups to a VCS cluster in online mode.
+## Assumes a failover group is desired
+
+## Revision History
+## Version 0.1 - 07 January 2014 - Barret Spangler
+
+
+# Test for service group name at runtime
+if [ -z "$1" ]; then
+	echo -e "\nUsage: `basename $0` <service gorup name>"
+	exit 1
+fi
+
+# assign human-readable variable name
+sgname="$1"
+
+# build the group
+/opt/VRTS/bin/hagrp -add $sgname
+/opt/VRTS/bin/hagrp -modify $sgname SystemList sym1 0 sym2 1
+/opt/VRTS/bin/hagrp -modify $sgname AutoStartList sym1 sym2
+/opt/VRTS/bin/hagrp -modify $sgname Enabled 1

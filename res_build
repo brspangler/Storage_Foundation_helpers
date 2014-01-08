@@ -1,0 +1,120 @@
+#!/bin/bash
+
+## This script is designed to minimize frustration when adding new resources to a VCS service group in online mode.
+## Revision History
+## Version 0.1 - 07 January 2014 - Barret Spangler
+
+# script wants 3 arguments to run - resource name, resource type and service group name
+expected_args=3
+
+# test for the number of arguments
+if [ $# -ne $expected_args ]; then
+	echo "\nUsage: `basename $0` resource_name resource_type service_group"
+	exit 1
+fi
+
+# assign human-friendly variable names
+res_name="$1"
+res_type="$2"
+sg_name="$3"
+
+##
+## Now the work starts
+# setting up per-resource-type functions to build the resources properly
+
+diskgroup(){
+	echo "Diskgroup name?"
+	read dg_name
+	/opt/VRTS/bin/hares -modify $res_name DiskGroup $dg_name
+	/opt/VRTS/bin/hares -modify $res_name Enabled 1
+	exit 0
+}
+
+volume(){
+	echo "Diskgroup name?"
+	read dg_name
+	echo "Volume name?"
+	read vol_name
+	/opt/VRTS/bin/hares -modify $res_name DiskGroup $dg_name
+	/opt/VRTS/bin/hares -modify $res_name Volume $vol_name
+	/opt/VRTS/bin/hares -modify $res_name Enabled 1
+	exit 0
+}
+
+mount(){
+	echo "Block Device?"
+	read block_dev
+	echo "Mount Point?"
+	read mount_point
+	echo "Filesystem type?"
+	read fstype
+	/opt/VRTS/bin/hares -modify $res_name BlockDevice $block_dev
+	/opt/VRTS/bin/hares -modify $res_name MountPoint $mount_point
+	/opt/VRTS/bin/hares -modify $res_name FSType $fstype
+	/opt/VRTS/bin/hares -modify $res_name FsckOpt %-y
+	/opt/VRTS/bin/hares -modify $res_name Enabled 1	
+	exit 0
+}
+
+ip(){
+	echo "Interface?"
+	read interface
+	echo "IP Address?"
+	read ip_addy
+	echo "Netmask?"
+	read netmask
+	/opt/VRTS/bin/hares -modify $res_name Device $interface
+	/opt/VRTS/bin/hares -modify $res_name Address $ip_addy
+	/opt/VRTS/bin/hares -modify $res_name NetMask $netmask
+	/opt/VRTS/bin/hares -modify $res_name Enabled 1
+	exit 0
+
+}
+
+cfsmount(){
+	echo "Mount Point?"
+	read cfs_mount
+	echo "Block Device?"
+	read cfs_block
+	/opt/VRTS/bin/hares -modify $res_name MountPoint $cfs_mount
+	/opt/VRTS/bin/hares -modify $res_name BlockDevice $cfs_block
+	/opt/VRTS/bin/hares -modify $res_name Enabled 1
+}
+
+cvmvoldg(){
+	echo "Disk Group?"
+	read cvm_group
+	echo "Volume?"
+	read cvm_volume
+	/opt/VRTS/bin/hares -modify $res_name CVMDiskGroup $cvm_group
+	/opt/VRTS/bin/hares -modify $res_name CVMVolume $cvm_volume
+	/opt/VRTS/bin/hares -modify $res_name CVMActivation sw
+	/opt/VRTS/bin/hares -modify $res_name CVMVolumeIoTest $cvm_volume
+	/opt/VRTS/bin/hares -modify $res_name Enabled 1
+}
+
+##
+## Now run it and build the resource
+
+/opt/VRTS/bin/hares -add $res_name $res_type $sg_name
+
+case "$res_type" in
+	"DiskGroup")
+		diskgroup
+	;;
+	"Volume")
+		volume
+	;;
+	"Mount")
+		mount
+	;;
+	"IP")
+		ip
+	;;
+	"CVMVolDg")
+		cvmvoldg
+	;;
+	"CFSMount")
+		cfsmount
+	;;
+	esac
