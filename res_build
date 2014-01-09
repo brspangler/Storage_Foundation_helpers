@@ -2,14 +2,15 @@
 
 ## This script is designed to minimize frustration when adding new resources to a VCS service group in online mode.
 ## Revision History
-## Version 0.1 - 07 January 2014 - Barret Spangler
+## Version 0.1 - 07 January 2014 - Barret Spangler - Initial build
+## Version 0.2 - 08 January 2014 - Barret Spangler - Added process and application resource types
 
 # script wants 3 arguments to run - resource name, resource type and service group name
 expected_args=3
 
 # test for the number of arguments
 if [ $# -ne $expected_args ]; then
-	echo "\nUsage: `basename $0` resource_name resource_type service_group"
+	echo "Usage: `basename $0` resource_name resource_type service_group" \n "Currently supported resources are DiskGroup, Volume, Mount, IP, CVMVolDg, CFSMount, Process, and Application"
 	exit 1
 fi
 
@@ -93,6 +94,34 @@ cvmvoldg(){
 	/opt/VRTS/bin/hares -modify $res_name Enabled 1
 }
 
+process(){
+	echo "Path Name?"
+	read path
+	echo "Arguments?"
+	read arguments
+	/opt/VRTS/bin/hares -modify $res_name PathName $path
+	/opt/VRTS/bin/hares -modify $res_name Arguments $arguments
+	/opt/VRTS/bin/hares -modify $res_name Critical 0
+	/opt/VRTS/bin/hares -modify $res_name Enabled 1
+	exit 0
+}
+
+application(){
+	echo "Start Program?"
+	read starter
+	echo "Stop Program?"
+	read stopper
+	echo "PIDfile?"
+	read pidfile
+	/opt/VRTS/bin/hares -modify $res_name StartProgram $starter
+	/opt/VRTS/bin/hares -modify $res_name StopProgram $stopper
+	/opt/VRTS/bin/hares -modify $res_name PidFiles $pidfile
+	/opt/VRTS/bin/hares -modify $res_name Critical 0
+	/opt/VRTS/bin/hares -modify $res_name Enabled 1
+	exit 0
+}
+
+
 ##
 ## Now run it and build the resource
 
@@ -116,5 +145,11 @@ case "$res_type" in
 	;;
 	"CFSMount")
 		cfsmount
+	;;
+	"Process")
+		process
+	;;
+	"Application")
+		application
 	;;
 	esac

@@ -1,23 +1,57 @@
 #!/bin/bash
 
 ## This script is designed to minimize frustration when adding new service groups to a VCS cluster in online mode.
-## Assumes a failover group is desired
+## Assumes all nodes go into autostart and system list
 
 ## Revision History
 ## Version 0.1 - 07 January 2014 - Barret Spangler
+## Version 0.2 - 08 January 2014 - Barret Spangler - added some extra functionality. not quite functional in this state
 
 
-# Test for service group name at runtime
-if [ -z "$1" ]; then
-	echo -e "\nUsage: `basename $0` <service gorup name>"
+# Test for runtime options
+
+expected_args=3
+if [ $# -ne $expected_args ]; then
+	echo -e "Usage: `basename $0` <service group name> <Parallel|Failover>"
 	exit 1
 fi
 
-# assign human-readable variable name
-sgname="$1"
 
-# build the group
-/opt/VRTS/bin/hagrp -add $sgname
-/opt/VRTS/bin/hagrp -modify $sgname SystemList sym1 0 sym2 1
-/opt/VRTS/bin/hagrp -modify $sgname AutoStartList sym1 sym2
-/opt/VRTS/bin/hagrp -modify $sgname Enabled 1
+
+# assign human-readable variable names
+sgname="$1"
+sgtype="$2"
+hagroup=/opt/VRTS/bin/hagrp
+hasystem=/opt/VRTS/bin/hasys
+
+# build system and autostart list
+autostartlist=""
+for i in $($hasystem -state | grep -v "#System" | awk '{print $1}')
+	do autostartlist=`echo $autostartlist $i`
+done
+
+systemlist=""
+node=0
+for i in $($hasystem -state | grep -v "#System" | awk '{print $1}')
+	do systemlist=`echo $systemlist $i $counter`
+	counter=$((counter + 1))
+done
+
+# build the failover group
+failover(){
+	$hagroup -add $sgname
+	$hagroup -modify $sgname SystemList sym1 0 sym2 1
+	$hagroup -modify $sgname AutoStartList sym1 sym2
+	$hagroup -modify $sgname Enabled 1
+	exit 0
+}
+
+#
+parallel(){
+	$hagroup -add $sgname
+	$hagroup -modify $sgname SystemList sym1 0 sym2 1
+	$hagroup -modify $sgname AutoStartList sym1 sym2
+	$hagroup
+	$hagroup -modify $sgname Enabled 1
+	exit 0
+}
