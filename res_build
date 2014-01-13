@@ -2,10 +2,12 @@
 
 ## This script is designed to minimize frustration when adding new resources to a VCS service group in online mode.
 ## Revision History
-## Version 0.1 - 07 January 2014 - Barret Spangler - Initial build
+## Version 0.3 - 10 Januray 2014 - Barret Spangler - Added CVMVolDG and CFSmount resource types. 
 ## Version 0.2 - 08 January 2014 - Barret Spangler - Added process and application resource types
+## Version 0.1 - 07 January 2014 - Barret Spangler - Initial build
+##########################################################################################################################################
 
-# script wants 3 arguments to run - resource name, resource type and service group name
+# We need 3 arguments to run - resource name, resource type and service group name
 expected_args=3
 
 # test for the number of arguments
@@ -18,6 +20,8 @@ fi
 res_name="$1"
 res_type="$2"
 sg_name="$3"
+haresource=/opt/VRTSvcs/bin/hares
+
 
 ##
 ## Now the work starts
@@ -26,8 +30,8 @@ sg_name="$3"
 diskgroup(){
 	echo "Diskgroup name?"
 	read dg_name
-	/opt/VRTS/bin/hares -modify $res_name DiskGroup $dg_name
-	/opt/VRTS/bin/hares -modify $res_name Enabled 1
+	$haresource -modify $res_name DiskGroup $dg_name
+	$haresource -modify $res_name Enabled 1
 	exit 0
 }
 
@@ -36,9 +40,9 @@ volume(){
 	read dg_name
 	echo "Volume name?"
 	read vol_name
-	/opt/VRTS/bin/hares -modify $res_name DiskGroup $dg_name
-	/opt/VRTS/bin/hares -modify $res_name Volume $vol_name
-	/opt/VRTS/bin/hares -modify $res_name Enabled 1
+	$haresource -modify $res_name DiskGroup $dg_name
+	$haresource -modify $res_name Volume $vol_name
+	$haresource -modify $res_name Enabled 1
 	exit 0
 }
 
@@ -49,11 +53,11 @@ mount(){
 	read mount_point
 	echo "Filesystem type?"
 	read fstype
-	/opt/VRTS/bin/hares -modify $res_name BlockDevice $block_dev
-	/opt/VRTS/bin/hares -modify $res_name MountPoint $mount_point
-	/opt/VRTS/bin/hares -modify $res_name FSType $fstype
-	/opt/VRTS/bin/hares -modify $res_name FsckOpt %-y
-	/opt/VRTS/bin/hares -modify $res_name Enabled 1	
+	$haresource -modify $res_name BlockDevice $block_dev
+	$haresource -modify $res_name MountPoint $mount_point
+	$haresource -modify $res_name FSType $fstype
+	$haresource -modify $res_name FsckOpt %-y
+	$haresource -modify $res_name Enabled 1	
 	exit 0
 }
 
@@ -64,10 +68,10 @@ ip(){
 	read ip_addy
 	echo "Netmask?"
 	read netmask
-	/opt/VRTS/bin/hares -modify $res_name Device $interface
-	/opt/VRTS/bin/hares -modify $res_name Address $ip_addy
-	/opt/VRTS/bin/hares -modify $res_name NetMask $netmask
-	/opt/VRTS/bin/hares -modify $res_name Enabled 1
+	$haresource -modify $res_name Device $interface
+	$haresource -modify $res_name Address $ip_addy
+	$haresource -modify $res_name NetMask $netmask
+	$haresource -modify $res_name Enabled 1
 	exit 0
 
 }
@@ -77,9 +81,10 @@ cfsmount(){
 	read cfs_mount
 	echo "Block Device?"
 	read cfs_block
-	/opt/VRTS/bin/hares -modify $res_name MountPoint $cfs_mount
-	/opt/VRTS/bin/hares -modify $res_name BlockDevice $cfs_block
-	/opt/VRTS/bin/hares -modify $res_name Enabled 1
+	$haresource -modify $res_name MountPoint $cfs_mount
+	$haresource -modify $res_name BlockDevice $cfs_block
+	$haresource -modify $res_name Enabled 1
+	exit 0
 }
 
 cvmvoldg(){
@@ -87,11 +92,12 @@ cvmvoldg(){
 	read cvm_group
 	echo "Volume?"
 	read cvm_volume
-	/opt/VRTS/bin/hares -modify $res_name CVMDiskGroup $cvm_group
-	/opt/VRTS/bin/hares -modify $res_name CVMVolume $cvm_volume
-	/opt/VRTS/bin/hares -modify $res_name CVMActivation sw
-	/opt/VRTS/bin/hares -modify $res_name CVMVolumeIoTest $cvm_volume
-	/opt/VRTS/bin/hares -modify $res_name Enabled 1
+	$haresource -modify $res_name CVMDiskGroup $cvm_group
+	$haresource -modify $res_name CVMVolume $cvm_volume
+	$haresource -modify $res_name CVMActivation sw
+	$haresource -modify $res_name CVMVolumeIoTest $cvm_volume
+	$haresource -modify $res_name Enabled 1
+	exit 0
 }
 
 process(){
@@ -99,10 +105,10 @@ process(){
 	read path
 	echo "Arguments?"
 	read arguments
-	/opt/VRTS/bin/hares -modify $res_name PathName $path
-	/opt/VRTS/bin/hares -modify $res_name Arguments $arguments
-	/opt/VRTS/bin/hares -modify $res_name Critical 0
-	/opt/VRTS/bin/hares -modify $res_name Enabled 1
+	$haresource -modify $res_name PathName $path
+	$haresource -modify $res_name Arguments $arguments
+	$haresource -modify $res_name Critical 0
+	$haresource -modify $res_name Enabled 1
 	exit 0
 }
 
@@ -113,19 +119,19 @@ application(){
 	read stopper
 	echo "PIDfile?"
 	read pidfile
-	/opt/VRTS/bin/hares -modify $res_name StartProgram $starter
-	/opt/VRTS/bin/hares -modify $res_name StopProgram $stopper
-	/opt/VRTS/bin/hares -modify $res_name PidFiles $pidfile
-	/opt/VRTS/bin/hares -modify $res_name Critical 0
-	/opt/VRTS/bin/hares -modify $res_name Enabled 1
+	$haresource -modify $res_name StartProgram $starter
+	$haresource -modify $res_name StopProgram $stopper
+	$haresource -modify $res_name PidFiles $pidfile
+	$haresource -modify $res_name Critical 0
+	$haresource -modify $res_name Enabled 1
 	exit 0
 }
 
 
-##
-## Now run it and build the resource
+##########################################################################################################################################
+## Figure out the resource type and build the resource based on the functions above
 
-/opt/VRTS/bin/hares -add $res_name $res_type $sg_name
+$haresource -add $res_name $res_type $sg_name
 
 case "$res_type" in
 	"DiskGroup")
@@ -152,4 +158,9 @@ case "$res_type" in
 	"Application")
 		application
 	;;
-	esac
+esac
+
+# If the script makes it this far, the resource type didn't match 
+echo "Resource type didn't match the list."
+echo "Allowed resource types are DiskGroup, Volume, Mount, IP, CVMVolDg, CFSMount, Process, and Application"
+exit 1
