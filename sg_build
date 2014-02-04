@@ -4,6 +4,7 @@
 ## Assumes all nodes go into autostart and system list
 
 ## Revision History
+## Version 0.4 - 17 January 2014 - Barret Spangler - Run through testing on live SFHA 6.1 system. Fixed some minor flow problems.
 ## Version 0.3 - 10 January 2014 - Barret Spangler - Finished service group type selector, refines functions. Reformatted for clarity. 
 ## Version 0.2 - 08 January 2014 - Barret Spangler - added some extra functionality. not quite functional in this state
 ## Version 0.1 - 07 January 2014 - Barret Spangler - Base Version
@@ -13,16 +14,16 @@
 # We need two runtime variables, sgname and sgtype. Check to make sure that two values are there
 expected_args=3
 if [ $# -ne $expected_args ]; then
-	echo -e "Usage: `basename $0` <service group name> <Parallel|Failover>"
-	exit 1
+        echo -e "Usage: `basename $0` <service group name> <Parallel|Failover>"
+        exit 1
 fi
 
-# Variable 2 needs to be either "Parallel" or "Failover" - no other options are valid. 
-if [ $2 -ne "Parallel" -a $2 -ne "Failover" ] 
-	then
-		echo "Service Group Type not valid"
-		echo -e "Usage: `basename $0` <service group name> <Parallel|Failover>"
-		exit 1
+# Variable 2 needs to be either "Parallel" or "Failover" - no other options are valid.
+if [ $2 -ne "Parallel" -a $2 -ne "Failover" ]
+        then
+                echo "Service Group Type not valid"
+                echo -e "Usage: `basename $0` <service group name> <Parallel|Failover>"
+                exit 1
 fi
 
 
@@ -38,7 +39,7 @@ hasystem=/opt/VRTS/bin/hasys
 autostart(){
 autostartlist=""
 for i in $($hasystem -state | grep -v "#System" | awk '{print $1}')
-	do autostartlist=`echo $autostartlist $i`
+        do autostartlist=`echo $autostartlist $i`
 done
 }
 
@@ -46,42 +47,42 @@ syslist(){
 systemlist=""
 node=0
 for i in $($hasystem -state | grep -v "#System" | awk '{print $1}')
-	do systemlist=`echo $systemlist $i $counter`
-	counter=$((counter + 1))
+        do systemlist=`echo $systemlist $i $counter`
+        counter=$((counter + 1))
 done
 }
 
 # build the failover group
 failover(){
-	$hagroup -add $sgname
-	$hagroup -modify $sgname SystemList $systemlist
-	$hagroup -modify $sgname AutoStartList $autostartlist
-	$hagroup -modify $sgname Enabled 1
-	exit 0
+        $hagroup -add $sgname
+        $hagroup -modify $sgname SystemList $systemlist
+        $hagroup -modify $sgname AutoStartList $autostartlist
+        $hagroup -modify $sgname Enabled 1
+        exit 0
 }
 
 # build the parallel group
 parallel(){
-	$hagroup -add $sgname
-	$hagroup -modify $sgname SystemList $systemlist
-	$hagroup -modify $sgname AutoStartList $autostartlist
-	$hagroup -modify $sgname Parallel 1
-	$hagroup -modify $sgname Enabled 1
-	exit 0
+        $hagroup -add $sgname
+        $hagroup -modify $sgname SystemList $systemlist
+        $hagroup -modify $sgname AutoStartList $autostartlist
+        $hagroup -modify $sgname Parallel 1
+        $hagroup -modify $sgname Enabled 1
+        exit 0
 }
 
 ##########################################################################################################################################
 autostart
 syslist
 case "$sgtype" in
-	"Failover")
-		failover
-	;;
-	"Parallel")
-		parallel
-	;;
+        "Failover")
+                failover
+        ;;
+        "Parallel")
+                parallel
+        ;;
 esac
 
-# If the script makes it this far, something's gone wrong. 
+# If the script makes it this far, something's gone wrong.
 echo "Service group not completely build. Run 'hagrp -display <service group name>' to see if it was built"
 exit 1

@@ -2,6 +2,7 @@
 
 ## This script is designed to minimize frustration when adding new resources to a VCS service group in online mode.
 ## Revision History
+## Version 0.4 - 17 January 2014 - Barret Spangler - Run through testing on live SFHA 6.1 system. Fixed some minor flow problems.
 ## Version 0.3 - 10 Januray 2014 - Barret Spangler - Added CVMVolDG and CFSmount resource types. 
 ## Version 0.2 - 08 January 2014 - Barret Spangler - Added process and application resource types
 ## Version 0.1 - 07 January 2014 - Barret Spangler - Initial build
@@ -12,8 +13,8 @@ expected_args=3
 
 # test for the number of arguments
 if [ $# -ne $expected_args ]; then
-	echo "Usage: `basename $0` resource_name resource_type service_group" \n "Currently supported resources are DiskGroup, Volume, Mount, IP, CVMVolDg, CFSMount, Process, and Application"
-	exit 1
+        echo "Usage: `basename $0` resource_name resource_type service_group" \n "Currently supported resources are DiskGroup, Volume, Mount, IP, CVMVolDg, CFSMount, Process, and Application"
+        exit 1
 fi
 
 # assign human-friendly variable names
@@ -28,103 +29,103 @@ haresource=/opt/VRTSvcs/bin/hares
 # setting up per-resource-type functions to build the resources properly
 
 diskgroup(){
-	echo "Diskgroup name?"
-	read dg_name
-	$haresource -modify $res_name DiskGroup $dg_name
-	$haresource -modify $res_name Enabled 1
-	exit 0
+        echo "Diskgroup name?"
+        read dg_name
+        $haresource -modify $res_name DiskGroup $dg_name
+        $haresource -modify $res_name Enabled 1
+        exit 0
 }
 
 volume(){
-	echo "Diskgroup name?"
-	read dg_name
-	echo "Volume name?"
-	read vol_name
-	$haresource -modify $res_name DiskGroup $dg_name
-	$haresource -modify $res_name Volume $vol_name
-	$haresource -modify $res_name Enabled 1
-	exit 0
+        echo "Diskgroup name?"
+        read dg_name
+        echo "Volume name?"
+        read vol_name
+        $haresource -modify $res_name DiskGroup $dg_name
+        $haresource -modify $res_name Volume $vol_name
+        $haresource -modify $res_name Enabled 1
+        exit 0
 }
 
 mount(){
-	echo "Block Device?"
-	read block_dev
-	echo "Mount Point?"
-	read mount_point
-	echo "Filesystem type?"
-	read fstype
-	$haresource -modify $res_name BlockDevice $block_dev
-	$haresource -modify $res_name MountPoint $mount_point
-	$haresource -modify $res_name FSType $fstype
-	$haresource -modify $res_name FsckOpt %-y
-	$haresource -modify $res_name Enabled 1	
-	exit 0
+        echo "Block Device?"
+        read block_dev
+        echo "Mount Point?"
+        read mount_point
+        echo "Filesystem type?"
+        read fstype
+        $haresource -modify $res_name BlockDevice $block_dev
+        $haresource -modify $res_name MountPoint $mount_point
+        $haresource -modify $res_name FSType $fstype
+        $haresource -modify $res_name FsckOpt %-y
+        $haresource -modify $res_name Enabled 1
+        exit 0
 }
 
 ip(){
-	echo "Interface?"
-	read interface
-	echo "IP Address?"
-	read ip_addy
-	echo "Netmask?"
-	read netmask
-	$haresource -modify $res_name Device $interface
-	$haresource -modify $res_name Address $ip_addy
-	$haresource -modify $res_name NetMask $netmask
-	$haresource -modify $res_name Enabled 1
-	exit 0
+        echo "Interface?"
+        read interface
+        echo "IP Address?"
+        read ip_addy
+        echo "Netmask?"
+        read netmask
+        $haresource -modify $res_name Device $interface
+        $haresource -modify $res_name Address $ip_addy
+        $haresource -modify $res_name NetMask $netmask
+        $haresource -modify $res_name Enabled 1
+        exit 0
 
 }
 
 cfsmount(){
-	echo "Mount Point?"
-	read cfs_mount
-	echo "Block Device?"
-	read cfs_block
-	$haresource -modify $res_name MountPoint $cfs_mount
-	$haresource -modify $res_name BlockDevice $cfs_block
-	$haresource -modify $res_name Enabled 1
-	exit 0
+        echo "Mount Point?"
+        read cfs_mount
+        echo "Block Device?"
+        read cfs_block
+        $haresource -modify $res_name MountPoint $cfs_mount
+        $haresource -modify $res_name BlockDevice $cfs_block
+        $haresource -modify $res_name Enabled 1
+        exit 0
 }
 
 cvmvoldg(){
-	echo "Disk Group?"
-	read cvm_group
-	echo "Volume?"
-	read cvm_volume
-	$haresource -modify $res_name CVMDiskGroup $cvm_group
-	$haresource -modify $res_name CVMVolume $cvm_volume
-	$haresource -modify $res_name CVMActivation sw
-	$haresource -modify $res_name CVMVolumeIoTest $cvm_volume
-	$haresource -modify $res_name Enabled 1
-	exit 0
+        echo "Disk Group?"
+        read cvm_group
+        echo "Volume?"
+        read cvm_volume
+        $haresource -modify $res_name CVMDiskGroup $cvm_group
+        $haresource -modify $res_name CVMVolume $cvm_volume
+        $haresource -modify $res_name CVMActivation sw
+        $haresource -modify $res_name CVMVolumeIoTest $cvm_volume
+        $haresource -modify $res_name Enabled 1
+        exit 0
 }
 
 process(){
-	echo "Path Name?"
-	read path
-	echo "Arguments?"
-	read arguments
-	$haresource -modify $res_name PathName $path
-	$haresource -modify $res_name Arguments $arguments
-	$haresource -modify $res_name Critical 0
-	$haresource -modify $res_name Enabled 1
-	exit 0
+        echo "Path Name?"
+        read path
+        echo "Arguments?"
+        read arguments
+        $haresource -modify $res_name PathName $path
+        $haresource -modify $res_name Arguments $arguments
+        $haresource -modify $res_name Critical 0
+        $haresource -modify $res_name Enabled 1
+        exit 0
 }
 
 application(){
-	echo "Start Program?"
-	read starter
-	echo "Stop Program?"
-	read stopper
-	echo "PIDfile?"
-	read pidfile
-	$haresource -modify $res_name StartProgram $starter
-	$haresource -modify $res_name StopProgram $stopper
-	$haresource -modify $res_name PidFiles $pidfile
-	$haresource -modify $res_name Critical 0
-	$haresource -modify $res_name Enabled 1
-	exit 0
+        echo "Start Program?"
+        read starter
+        echo "Stop Program?"
+        read stopper
+        echo "PIDfile?"
+        read pidfile
+        $haresource -modify $res_name StartProgram $starter
+        $haresource -modify $res_name StopProgram $stopper
+        $haresource -modify $res_name PidFiles $pidfile
+        $haresource -modify $res_name Critical 0
+        $haresource -modify $res_name Enabled 1
+        exit 0
 }
 
 
@@ -134,33 +135,33 @@ application(){
 $haresource -add $res_name $res_type $sg_name
 
 case "$res_type" in
-	"DiskGroup")
-		diskgroup
-	;;
-	"Volume")
-		volume
-	;;
-	"Mount")
-		mount
-	;;
-	"IP")
-		ip
-	;;
-	"CVMVolDg")
-		cvmvoldg
-	;;
-	"CFSMount")
-		cfsmount
-	;;
-	"Process")
-		process
-	;;
-	"Application")
-		application
-	;;
+        "DiskGroup")
+                diskgroup
+        ;;
+        "Volume")
+                volume
+        ;;
+        "Mount")
+                mount
+        ;;
+        "IP")
+                ip
+        ;;
+        "CVMVolDg")
+                cvmvoldg
+        ;;
+        "CFSMount")
+                cfsmount
+        ;;
+        "Process")
+                process
+        ;;
+        "Application")
+                application
+        ;;
 esac
 
-# If the script makes it this far, the resource type didn't match 
+# If the script makes it this far, the resource type didn't match
 echo "Resource type didn't match the list."
 echo "Allowed resource types are DiskGroup, Volume, Mount, IP, CVMVolDg, CFSMount, Process, and Application"
 exit 1
