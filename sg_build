@@ -12,14 +12,14 @@
 ## Test for runtime options
 
 # We need two runtime variables, sgname and sgtype. Check to make sure that two values are there
-expected_args=3
+expected_args=2
 if [ $# -ne $expected_args ]; then
         echo -e "Usage: `basename $0` <service group name> <Parallel|Failover>"
         exit 1
 fi
 
 # Variable 2 needs to be either "Parallel" or "Failover" - no other options are valid.
-if [ $2 -ne "Parallel" -a $2 -ne "Failover" ]
+if [ $2 != "Parallel" -a $2 != "Failover" ]
         then
                 echo "Service Group Type not valid"
                 echo -e "Usage: `basename $0` <service group name> <Parallel|Failover>"
