@@ -2,6 +2,7 @@
 
 ## This script is designed to minimize frustration when adding new resources to a VCS service group in online mode.
 ## Revision History
+## Version 0.5 - 14 July	2014 - Barret Spangler - Fixed logical errors, added 'finished' function
 ## Version 0.4 - 17 January 2014 - Barret Spangler - Run through testing on live SFHA 6.1 system. Fixed some minor flow problems.
 ## Version 0.3 - 10 Januray 2014 - Barret Spangler - Added CVMVolDG and CFSmount resource types. 
 ## Version 0.2 - 08 January 2014 - Barret Spangler - Added process and application resource types
@@ -13,7 +14,7 @@ expected_args=3
 
 # test for the number of arguments
 if [ $# -ne $expected_args ]; then
-        echo "Usage: `basename $0` resource_name resource_type service_group" \n "Currently supported resources are DiskGroup, Volume, Mount, IP, CVMVolDg, CFSMount, Process, and Application"
+        echo "Usage: `basename $0` <resource_name> <resource_type> <service_group>" \n "Currently supported resources are DiskGroup, Volume, Mount, IP, CVMVolDg, CFSMount, Process, and Application"
         exit 1
 fi
 
@@ -23,6 +24,12 @@ res_type="$2"
 sg_name="$3"
 haresource=/opt/VRTSvcs/bin/hares
 
+finished(){
+	$haresource -state $res_name
+	echo "Don't forget to link this resource to any parent or children resources before bringing online"
+	echo "Bring the new resource online with the command 'hares -online $res_name -sys {system}'"
+	exit 0
+}
 
 ##
 ## Now the work starts
@@ -33,7 +40,7 @@ diskgroup(){
         read dg_name
         $haresource -modify $res_name DiskGroup $dg_name
         $haresource -modify $res_name Enabled 1
-        exit 0
+		finished
 }
 
 volume(){
@@ -44,7 +51,7 @@ volume(){
         $haresource -modify $res_name DiskGroup $dg_name
         $haresource -modify $res_name Volume $vol_name
         $haresource -modify $res_name Enabled 1
-        exit 0
+		finished
 }
 
 mount(){
@@ -59,7 +66,7 @@ mount(){
         $haresource -modify $res_name FSType $fstype
         $haresource -modify $res_name FsckOpt %-y
         $haresource -modify $res_name Enabled 1
-        exit 0
+		finished
 }
 
 ip(){
@@ -73,19 +80,18 @@ ip(){
         $haresource -modify $res_name Address $ip_addy
         $haresource -modify $res_name NetMask $netmask
         $haresource -modify $res_name Enabled 1
-        exit 0
-
+		finished
 }
 
 cfsmount(){
-        echo "Mount Point?"
-        read cfs_mount
         echo "Block Device?"
         read cfs_block
+		echo "Mount Point?"
+        read cfs_mount
         $haresource -modify $res_name MountPoint $cfs_mount
         $haresource -modify $res_name BlockDevice $cfs_block
         $haresource -modify $res_name Enabled 1
-        exit 0
+		finished
 }
 
 cvmvoldg(){
@@ -98,7 +104,7 @@ cvmvoldg(){
         $haresource -modify $res_name CVMActivation sw
         $haresource -modify $res_name CVMVolumeIoTest $cvm_volume
         $haresource -modify $res_name Enabled 1
-        exit 0
+		finished
 }
 
 process(){
@@ -110,7 +116,7 @@ process(){
         $haresource -modify $res_name Arguments $arguments
         $haresource -modify $res_name Critical 0
         $haresource -modify $res_name Enabled 1
-        exit 0
+		finished
 }
 
 application(){
@@ -125,14 +131,15 @@ application(){
         $haresource -modify $res_name PidFiles $pidfile
         $haresource -modify $res_name Critical 0
         $haresource -modify $res_name Enabled 1
-        exit 0
+		finished
 }
 
 
 ##########################################################################################################################################
 ## Figure out the resource type and build the resource based on the functions above
 
-$haresource -add $res_name $res_type $sg_name
+/opt/VRTS/bin/haconf -makerw &>/dev/null
+$haresource -add $res_name $res_type $sg_name &>/dev/null
 
 case "$res_type" in
         "DiskGroup")
@@ -160,6 +167,7 @@ case "$res_type" in
                 application
         ;;
 esac
+
 
 # If the script makes it this far, the resource type didn't match
 echo "Resource type didn't match the list."

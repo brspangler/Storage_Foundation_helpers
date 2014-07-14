@@ -4,6 +4,7 @@
 ## Assumes all nodes go into autostart and system list
 
 ## Revision History
+## Version 0.5 - 14 July 	2014 - Barret Spangler - Fixed node/counter mismatch
 ## Version 0.4 - 17 January 2014 - Barret Spangler - Run through testing on live SFHA 6.1 system. Fixed some minor flow problems.
 ## Version 0.3 - 10 January 2014 - Barret Spangler - Finished service group type selector, refines functions. Reformatted for clarity. 
 ## Version 0.2 - 08 January 2014 - Barret Spangler - added some extra functionality. not quite functional in this state
@@ -32,6 +33,7 @@ sgname="$1"
 sgtype="$2"
 hagroup=/opt/VRTS/bin/hagrp
 hasystem=/opt/VRTS/bin/hasys
+hastat=/opt/VRTS/bin/hastatus
 
 ## some functions for later on
 # build system and autostart list
@@ -47,33 +49,38 @@ syslist(){
 systemlist=""
 node=0
 for i in $($hasystem -state | grep -v "#System" | awk '{print $1}')
-        do systemlist=`echo $systemlist $i $counter`
-        counter=$((counter + 1))
+        do systemlist=`echo $systemlist $i $node`
+        node=$((node + 1))
 done
 }
 
 # build the failover group
 failover(){
-        $hagroup -add $sgname
+        $hagroup -add $sgname &>/dev/null
         $hagroup -modify $sgname SystemList $systemlist
         $hagroup -modify $sgname AutoStartList $autostartlist
         $hagroup -modify $sgname Enabled 1
+		$hastat -sum
+		echo $sgname "successfully built"
         exit 0
 }
 
 # build the parallel group
 parallel(){
-        $hagroup -add $sgname
+        $hagroup -add $sgname &>/dev/null
         $hagroup -modify $sgname SystemList $systemlist
         $hagroup -modify $sgname AutoStartList $autostartlist
         $hagroup -modify $sgname Parallel 1
         $hagroup -modify $sgname Enabled 1
+		$hastat -sum
+		echo $sgname "successfully built"
         exit 0
 }
 
 ##########################################################################################################################################
 autostart
 syslist
+/opt/VRTS/bin/haconf -makerw &>/dev/null
 case "$sgtype" in
         "Failover")
                 failover
