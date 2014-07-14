@@ -1,8 +1,36 @@
 Intro:
 
-  I currently work supporting the Storage Foundation family of products. Through the course of my day, I end up writing a bunch of little scripts and snippets to perform the repetitive heavy lifting for me. I figure that some fo them might be helpful to other people. 
+  I currently work supporting the Storage Foundation family of products. Through the course of my day, I end up writing a bunch of little scripts and snippets to perform the repetitive heavy lifting for me. I figure that some of them might be helpful to other people. 
   
   
 CAVEATS:
 
   This repo does not constitute any kind of official support contract, either explicit or implied. Use everything at your own risk. 
+  
+  
+Current scripts:
+sg_build: builds service groups
+res_build: builds resources
+
+
+sg_build:
+## This script is designed to minimize frustration when adding new service groups to a VCS cluster in online mode.
+## Assumes all nodes go into autostart and system list
+## Revision History
+## Version 0.5 - 14 July 	2014 - Barret Spangler - Fixed node/counter mismatch
+## Version 0.4 - 17 January 2014 - Barret Spangler - Run through testing on live SFHA 6.1 system. Fixed some minor flow problems.
+## Version 0.3 - 10 January 2014 - Barret Spangler - Finished service group type selector, refines functions. Reformatted for clarity. 
+## Version 0.2 - 08 January 2014 - Barret Spangler - added some extra functionality. not quite functional in this state
+## Version 0.1 - 07 January 2014 - Barret Spangler - Base Version
+
+
+
+
+res_build:
+## This script is designed to minimize frustration when adding new resources to a VCS service group in online mode.
+## Revision History
+## Version 0.5 - 14 July	2014 - Barret Spangler - Fixed logical errors, added 'finished' function
+## Version 0.4 - 17 January 2014 - Barret Spangler - Run through testing on live SFHA 6.1 system. Fixed some minor flow problems.
+## Version 0.3 - 10 Januray 2014 - Barret Spangler - Added CVMVolDG and CFSmount resource types. 
+## Version 0.2 - 08 January 2014 - Barret Spangler - Added process and application resource types
+## Version 0.1 - 07 January 2014 - Barret Spangler - Initial build
